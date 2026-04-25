@@ -127,6 +127,14 @@ filterAllBtn.addEventListener('click', () => {
 
 // ─── Load & render highlights ──────────────────────────────────────────────────
 
+function setListEmpty(message) {
+  highlightsList.innerHTML = '';
+  const li = document.createElement('li');
+  li.className = 'empty-state';
+  li.textContent = message;
+  highlightsList.appendChild(li);
+}
+
 async function loadHighlights() {
   highlightsList.innerHTML = '';
 
@@ -135,43 +143,73 @@ async function loadHighlights() {
     const res = await sendMsg({ type: 'QUERY_NOTION_HIGHLIGHTS', pageUrl });
 
     if (!res?.ok) {
-      highlightsList.innerHTML = `<li class="empty-state">Error loading highlights.</li>`;
+      setListEmpty('Error loading highlights.');
       return;
     }
 
     const results = res.data?.results || [];
     if (results.length === 0) {
-      highlightsList.innerHTML = `<li class="empty-state">No highlights yet.</li>`;
+      setListEmpty('No highlights yet.');
       return;
     }
 
     results.forEach(page => renderHighlightItem(page));
   } catch (err) {
-    highlightsList.innerHTML = `<li class="empty-state">Could not load highlights.</li>`;
+    setListEmpty('Could not load highlights.');
   }
 }
 
 function renderHighlightItem(page) {
   const props = page.properties || {};
-  const text  = props.Name?.title?.[0]?.text?.content || '(no text)';
-  const note  = props.Note?.rich_text?.[0]?.text?.content || '';
-  const color = props.Color?.select?.name || 'yellow';
-  const url   = props.URL?.url || '';
+  const text    = props.Name?.title?.[0]?.text?.content || '(no text)';
+  const note    = props.Note?.rich_text?.[0]?.text?.content || '';
+  const color   = props.Color?.select?.name || 'yellow';
+  const url     = props.URL?.url || '';
   const created = page.created_time
     ? new Date(page.created_time).toLocaleDateString()
     : '';
 
+  // Validate color strictly against the known palette to prevent style injection
+  const safeColor = COLOR_HEX[color] || COLOR_HEX.yellow;
+
   const li = document.createElement('li');
   li.className = 'highlight-item';
-  li.innerHTML = `
-    <div class="hi-color-bar" style="background:${COLOR_HEX[color] || '#fff176'}"></div>
-    <div class="hi-text" title="${escapeHtml(text)}">${escapeHtml(text)}</div>
-    ${note ? `<div class="hi-note">${escapeHtml(note)}</div>` : ''}
-    <div class="hi-meta">
-      <span>${created}</span>
-      <button class="hi-delete" title="Delete" data-id="${page.id}">🗑</button>
-    </div>
-  `;
+
+  const colorBar = document.createElement('div');
+  colorBar.className = 'hi-color-bar';
+  colorBar.style.background = safeColor;
+
+  const textDiv = document.createElement('div');
+  textDiv.className = 'hi-text';
+  textDiv.title = text;
+  textDiv.textContent = text;
+
+  const metaDiv = document.createElement('div');
+  metaDiv.className = 'hi-meta';
+
+  const createdSpan = document.createElement('span');
+  createdSpan.textContent = created;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'hi-delete';
+  deleteBtn.title = 'Delete';
+  deleteBtn.dataset.id = page.id;
+  deleteBtn.textContent = '🗑';
+
+  metaDiv.appendChild(createdSpan);
+  metaDiv.appendChild(deleteBtn);
+
+  li.appendChild(colorBar);
+  li.appendChild(textDiv);
+
+  if (note) {
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'hi-note';
+    noteDiv.textContent = note;
+    li.appendChild(noteDiv);
+  }
+
+  li.appendChild(metaDiv);
 
   if (url) {
     li.addEventListener('click', e => {
@@ -180,7 +218,7 @@ function renderHighlightItem(page) {
     });
   }
 
-  li.querySelector('.hi-delete').addEventListener('click', async e => {
+  deleteBtn.addEventListener('click', async e => {
     e.stopPropagation();
     if (!confirm('Delete this highlight from Notion?')) return;
 
@@ -193,20 +231,12 @@ function renderHighlightItem(page) {
     if (res?.ok) {
       li.remove();
       if (!highlightsList.querySelector('.highlight-item')) {
-        highlightsList.innerHTML = `<li class="empty-state">No highlights yet.</li>`;
+        setListEmpty('No highlights yet.');
       }
     }
   });
 
   highlightsList.appendChild(li);
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
 }
 
 // ─── Boot ─────────────────────────────────────────────────────────────────────

@@ -12,8 +12,6 @@
   const TOOLTIP_VERTICAL_OFFSET = 44;
   /** Half the tooltip width (px) used to horizontally centre it on selection. */
   const TOOLTIP_HALF_WIDTH = 70;
-  /** Length of the random alphanumeric suffix in generated highlight IDs. */
-  const HIGHLIGHT_ID_SUFFIX_LENGTH = 5;
 
   // ─── XPath helpers ────────────────────────────────────────────────────────
 
@@ -423,7 +421,7 @@
 
     const text = currentRange.toString();
     const serialized = serializeRange(currentRange);
-    const highlightId = `swiper-${Date.now()}-${Math.random().toString(36).slice(2, 2 + HIGHLIGHT_ID_SUFFIX_LENGTH)}`;
+    const highlightId = crypto.randomUUID();
 
     saveBtn.disabled = true;
     status.textContent = 'Saving…';

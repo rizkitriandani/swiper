@@ -20,16 +20,6 @@ const refreshBtn      = document.getElementById('refresh-btn');
 let currentTabUrl = '';
 let filterMode = 'page';
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
 function setConnected(connected) {
   statusDot.className = `dot ${connected ? 'connected' : 'disconnected'}`;
   statusDot.title = connected ? 'Connected to Notion' : 'Disconnected';
@@ -73,8 +63,20 @@ refreshBtn.addEventListener('click', loadHighlights);
 
 // ─── Load & render ─────────────────────────────────────────────────────────────
 
+function setListEmpty(message) {
+  highlightsList.innerHTML = '';
+  const li = document.createElement('li');
+  li.className = 'empty-state';
+  li.textContent = message;
+  highlightsList.appendChild(li);
+}
+
 async function loadHighlights() {
-  highlightsList.innerHTML = `<li class="loading">Loading…</li>`;
+  highlightsList.innerHTML = '';
+  const loading = document.createElement('li');
+  loading.className = 'loading';
+  loading.textContent = 'Loading…';
+  highlightsList.appendChild(loading);
 
   try {
     const pageUrl = filterMode === 'page' ? currentTabUrl : undefined;
@@ -84,20 +86,20 @@ async function loadHighlights() {
     });
 
     if (!res?.ok) {
-      highlightsList.innerHTML = `<li class="empty-state">Error: ${escapeHtml(res?.error || 'unknown')}</li>`;
+      setListEmpty(`Error: ${res?.error || 'unknown'}`);
       return;
     }
 
     const results = res.data?.results || [];
     if (results.length === 0) {
-      highlightsList.innerHTML = `<li class="empty-state">No highlights found.</li>`;
+      setListEmpty('No highlights found.');
       return;
     }
 
     highlightsList.innerHTML = '';
     results.forEach(page => renderItem(page));
   } catch (err) {
-    highlightsList.innerHTML = `<li class="empty-state">Could not reach background worker.</li>`;
+    setListEmpty('Could not reach background worker.');
   }
 }
 
@@ -114,18 +116,52 @@ function renderItem(page) {
   let hostname = '';
   try { hostname = new URL(url).hostname; } catch { hostname = url; }
 
+  // Validate color strictly against the known palette to prevent style injection
+  const safeColor = COLOR_HEX[color] || COLOR_HEX.yellow;
+
   const li = document.createElement('li');
   li.className = 'highlight-item';
-  li.innerHTML = `
-    <div class="hi-color-bar" style="background:${COLOR_HEX[color] || '#fff176'}"></div>
-    <div class="hi-text">${escapeHtml(text)}</div>
-    ${note ? `<div class="hi-note">📝 ${escapeHtml(note)}</div>` : ''}
-    <div class="hi-meta">
-      <span class="hi-url" title="${escapeHtml(url)}">${escapeHtml(hostname)}</span>
-      <span>${created}</span>
-      <button class="hi-delete" title="Delete" data-id="${page.id}">🗑</button>
-    </div>
-  `;
+
+  const colorBar = document.createElement('div');
+  colorBar.className = 'hi-color-bar';
+  colorBar.style.background = safeColor;
+
+  const textDiv = document.createElement('div');
+  textDiv.className = 'hi-text';
+  textDiv.textContent = text;
+
+  const metaDiv = document.createElement('div');
+  metaDiv.className = 'hi-meta';
+
+  const urlSpan = document.createElement('span');
+  urlSpan.className = 'hi-url';
+  urlSpan.title = url;
+  urlSpan.textContent = hostname;
+
+  const dateSpan = document.createElement('span');
+  dateSpan.textContent = created;
+
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'hi-delete';
+  deleteBtn.title = 'Delete';
+  deleteBtn.dataset.id = page.id;
+  deleteBtn.textContent = '🗑';
+
+  metaDiv.appendChild(urlSpan);
+  metaDiv.appendChild(dateSpan);
+  metaDiv.appendChild(deleteBtn);
+
+  li.appendChild(colorBar);
+  li.appendChild(textDiv);
+
+  if (note) {
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'hi-note';
+    noteDiv.textContent = `📝 ${note}`;
+    li.appendChild(noteDiv);
+  }
+
+  li.appendChild(metaDiv);
 
   if (url) {
     li.addEventListener('click', e => {
@@ -134,7 +170,7 @@ function renderItem(page) {
     });
   }
 
-  li.querySelector('.hi-delete').addEventListener('click', async e => {
+  deleteBtn.addEventListener('click', async e => {
     e.stopPropagation();
     if (!confirm('Delete this highlight from Notion?')) return;
 
@@ -147,7 +183,7 @@ function renderItem(page) {
     if (res?.ok) {
       li.remove();
       if (!highlightsList.querySelector('.highlight-item')) {
-        highlightsList.innerHTML = `<li class="empty-state">No highlights found.</li>`;
+        setListEmpty('No highlights found.');
       }
     }
   });
