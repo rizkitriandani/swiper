@@ -152,8 +152,9 @@
       const action = e.target.closest('[data-action]')?.dataset.action;
       if (action === 'highlight') {
         e.preventDefault();
+        const range = pendingRange;
         hideTooltip();
-        openNotePanel(pendingRange);
+        openNotePanel(range);
       } else if (action === 'copy') {
         e.preventDefault();
         navigator.clipboard.writeText(pendingRange?.toString() || '').catch(() => {});
