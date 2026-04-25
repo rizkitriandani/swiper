@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swiper</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="header">
+    <img src="../icons/icon48.png" alt="Swiper" class="logo" />
+    <div>
+      <h1>Swiper</h1>
+      <p class="tagline">Highlight → Notion</p>
+    </div>
+    <span id="status-dot" class="dot disconnected" title="Disconnected"></span>
+  </div>
+
+  <!-- Settings Section -->
+  <section id="section-settings">
+    <label for="token-input">Notion Integration Token</label>
+    <div class="input-row">
+      <input
+        type="password"
+        id="token-input"
+        placeholder="secret_xxxxxxxxxxxx"
+        autocomplete="off"
+      />
+      <button id="toggle-token" class="icon-btn" title="Show/hide">👁</button>
+    </div>
+
+    <label for="db-input">Database ID</label>
+    <div class="input-row">
+      <input
+        type="text"
+        id="db-input"
+        placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="btn-row">
+      <button id="connect-btn" class="primary">Connect</button>
+      <button id="disconnect-btn" class="danger hidden">Disconnect</button>
+    </div>
+    <p id="connect-status" class="status-msg"></p>
+  </section>
+
+  <!-- Highlights Section -->
+  <section id="section-highlights" class="hidden">
+    <div class="highlights-header">
+      <h2>Highlights</h2>
+      <div class="filter-row">
+        <button id="filter-page" class="filter-btn active">This page</button>
+        <button id="filter-all" class="filter-btn">All</button>
+      </div>
+    </div>
+    <ul id="highlights-list">
+      <li class="empty-state">No highlights yet. Select text on any page to get started.</li>
+    </ul>
+  </section>
+
+  <script src="popup.js"></script>
+</body>
+</html>

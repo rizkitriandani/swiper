@@ -1,0 +1,110 @@
+/* ─── Swiper Highlight Styles ─────────────────────────────────────────────── */
+
+/* ── Highlighted text ────────────────────────────────────────────────────── */
+mark.swiper-highlight {
+  border-radius: 3px;
+  padding: 0 1px;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+mark.swiper-highlight:hover {
+  opacity: 0.75;
+}
+
+/* ── Selection tooltip ───────────────────────────────────────────────────── */
+#swiper-tooltip {
+  position: absolute;
+  display: flex;
+  gap: 4px;
+  background: #1a1a2e;
+  border-radius: 8px;
+  padding: 6px 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  z-index: 2147483645;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+#swiper-tooltip.swiper-visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+#swiper-tooltip button {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 5px;
+  transition: background 0.15s;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+#swiper-tooltip button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Highlight detail panel ──────────────────────────────────────────────── */
+.swiper-highlight-panel {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  z-index: 2147483644;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  max-width: 280px;
+  color: #1a1a2e;
+}
+
+.swiper-highlight-panel .shp-text {
+  color: #555;
+  font-style: italic;
+  margin: 0 0 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.swiper-highlight-panel .shp-delete {
+  display: block;
+  width: 100%;
+  background: #fee2e2;
+  color: #991b1b;
+  border: none;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.swiper-highlight-panel .shp-delete:hover {
+  background: #fecaca;
+}
+
+.swiper-highlight-panel .shp-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.swiper-highlight-panel .shp-close:hover {
+  color: #374151;
+}

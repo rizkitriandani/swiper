@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swiper</title>
+  <link rel="stylesheet" href="sidebar.css" />
+</head>
+<body>
+  <div class="header">
+    <img src="../icons/icon48.png" alt="Swiper" class="logo" />
+    <h1>Swiper</h1>
+    <span id="status-dot" class="dot disconnected" title="Disconnected"></span>
+  </div>
+
+  <div id="not-connected" class="notice">
+    <p>Connect Swiper to Notion in the <strong>extension popup</strong> first.</p>
+  </div>
+
+  <div id="connected-view" class="hidden">
+    <div class="toolbar">
+      <div class="filter-row">
+        <button id="filter-page" class="filter-btn active">This page</button>
+        <button id="filter-all" class="filter-btn">All pages</button>
+      </div>
+      <button id="refresh-btn" class="icon-btn" title="Refresh">↻</button>
+    </div>
+
+    <ul id="highlights-list">
+      <li class="empty-state">No highlights yet.</li>
+    </ul>
+  </div>
+
+  <script src="sidebar.js"></script>
+</body>
+</html>
